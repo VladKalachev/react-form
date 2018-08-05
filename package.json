@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "antd": "^3.8.0",
+    "antd-react-form-builder": "^0.6.9",
     "node-uuid": "^1.4.8",
     "ramda": "^0.25.0",
     "react": "^16.4.2",
