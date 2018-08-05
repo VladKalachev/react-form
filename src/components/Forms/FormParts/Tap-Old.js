@@ -42,7 +42,7 @@ class Tap extends Component {
         })
     }
 
-    delet222 = (index) => {
+    delet = (index) => {
         console.log('delet', index)
         const list = [...this.state.list];
         this.setState({ list: list.filter(item => item.key !== index) })
@@ -63,54 +63,59 @@ class Tap extends Component {
         this.props.form.validateFields((err, values) => {
           if (!err) {
               console.log('--- values', values)
-              this.props.add(values, this.props.list)
           }
         })
     }
 
     render() {
 
-        //console.log('this.state', this.state)
+        console.log('this.state', this.state)
 
-        const { form, list, element } = this.props
+        const { form } = this.props
         const { getFieldDecorator } = form
 
-        
-        console.log('TEP props', this.props)
-        return (
-
-                 <Form 
-                 className={this.props.element.delet ? 'hidden': ''}
+        const itemElemet = this.state.list.map( (item, index) => {
+            return(
+           
+               <Form 
+               key={index}
                    // onSubmit={this.handleSubmit} 
                 >
                     <FormItem>
-                    {getFieldDecorator( `name`, {
+                    {getFieldDecorator( `name${index}`, {
                             rules: [{ required: true, message: 'Please input your Name!' }],
                         })(
-                            <Input placeholder="Название" />
+                            <Input placeholder="Name" />
                         )}
                     </FormItem>
 
                     <FormItem>
-                    {getFieldDecorator( `type`, {
-                            rules: [{ required: true, message: 'Please input your Type!' }],
-                        })(
-                            <Input placeholder="Тип" />
-                        )}
-                    </FormItem>
-
-                    <FormItem>
-                        <Button type="primary" onClick={this.creat}
-                        >
+                        <Button type="primary" onClick={this.creat}>
                             Сохранить Tap
                         </ Button> 
                     </FormItem>
                     <FormItem>
-                        <Button onClick={() => this.props.delet(list)} >
+                        <Button onClick={() => {this.delet(item.key) }}>
                             Отмена
                         </ Button> 
                     </FormItem>
             </Form>
+          
+            )
+        
+        })
+
+        console.log('TEP props', this.props)
+        return (
+            <div>
+                {itemElemet}
+                TODO TAP
+                <Button 
+                    onClick={this.handleClick} 
+                    type="primary" >
+                   Добавить Teп
+                </ Button> 
+            </div>
         )
     }
 } 

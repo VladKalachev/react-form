@@ -19,23 +19,27 @@ const { Header, Content, Sider } = Layout;
 
 // Правила для формы
 
+let keys = 0
+
 class FormOne extends Component {
 
     constructor(props){
         super(props)
         this.resetClick = this.resetClick.bind(this)
         //this.deleteClick = this.deleteClick.bind(this)
+        this.delet = this.delet.bind(this)
     }
 
     state = {
         modal: false,
         dataSource: [],
         edit: false,
-        currentItem: null
+        currentItem: null,
+        list: []
     }
 
     componentWillReceiveProps(nexProps){
-        console.log('nexProps', nexProps)
+        //console.log('nexProps', nexProps)
      //   if(this.state.dataSource != nexProps)
     }
 
@@ -134,7 +138,7 @@ class FormOne extends Component {
       }
 
       resetClick = (e) => {
-          console.log('reset click!')
+          //console.log('reset click!')
           this.props.form.resetFields()
           this.setState({
               modal: false
@@ -170,12 +174,63 @@ class FormOne extends Component {
         this.setState({ dataSource: dataSource.filter(item => item.key !== key) })
     }
 
+    addTep = (e) => {
+        //console.log('click!', UUID.v4())
+        let cloneList = clone(this.state.list)
+        
+        let newElement = {
+            name: keys ++,
+            type: '',
+            key: UUID.v4(),
+            delet: false
+        }
+        
+        newElement.key = UUID.v4()
+
+        cloneList.push(newElement)
+        this.setState({
+            list: cloneList
+        })
+    }
+
+    addNew = (values, key) => {
+        console.log('add', values, key)
+
+        let cloneList = clone(this.state.list)
+        
+        let newElement = {
+            name: values.name,
+            type: values.type,
+            key: key,
+            delet: true
+        }
+
+        cloneList.map(item => {
+            if (item.key == key){
+                item.name = newElement.name,
+                item.type = newElement.type,
+                item.key = newElement.key,
+                item.delet = newElement.delet
+            } 
+            return item
+        })
+        this.setState({
+            list: cloneList
+        })
+    }
+
+    delet = (index) => {
+        console.log('delet', index)
+        const list = [...this.state.list];
+        let del = list.filter(item => item.key !== index)
+        console.log('--- del', del)
+        this.setState({ list: list.filter(item => item.key !== index) })
+    }
+
     render(){
 
         const { form } = this.props
         const { getFieldDecorator } = form
-
-
         const dataSource = []
         
       
@@ -184,7 +239,7 @@ class FormOne extends Component {
             dataIndex: 'name',
             key: 'name',
             render: (text, record, index) => {
-                console.log('record', record)
+                //console.log('record', record)
                 return (<p>
                    <span><Icon onClick={() =>{this.editClick(record.key)}} type="edit" /></span> <span><Icon type="delete" onClick={() => {this.deleteClick(record.key)}}  /></span>{record.name}
                 </p>)
@@ -204,7 +259,13 @@ class FormOne extends Component {
           }];
           
 
-          console.log('this.state', this.state)
+         console.log('this.state', this.state)
+
+          let getElement = this.state.list.map( (item, index) => {
+            return <Tap key={index} list={item.key} element={item} add={this.addNew} delet={this.delet} state={this.state.list}/>
+            }
+        )
+
         //console.log('this.props', this.props)
         return (
         <Layout>
@@ -254,8 +315,13 @@ class FormOne extends Component {
                     )}
                 </FormItem>
 
+               {getElement}
 
-                <Tap />
+                <Button 
+                    onClick={this.addTep} 
+                    type="primary" >
+                   Добавить Teп
+                </ Button> 
 
                 <FormItem>
                 <Button type="primary" htmlType="submit" className="login-form-button">
