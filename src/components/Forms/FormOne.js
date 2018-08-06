@@ -12,6 +12,7 @@ import {
 } from "antd";
 import { clone } from "ramda";
 import Tap from "./FormParts/Tap";
+import CreatTap from "./FormParts/CreatTap";
 import { default as UUID } from "node-uuid";
 
 const FormItem = Form.Item;
@@ -25,7 +26,6 @@ class FormOne extends Component {
   constructor(props) {
     super(props);
     this.resetClick = this.resetClick.bind(this);
-    //this.deleteClick = this.deleteClick.bind(this)
     this.delet = this.delet.bind(this);
   }
 
@@ -34,7 +34,8 @@ class FormOne extends Component {
     dataSource: [],
     edit: false,
     currentItem: null,
-    list: []
+    list: [],
+    tap: []
   };
 
   componentWillReceiveProps(nexProps) {
@@ -46,44 +47,43 @@ class FormOne extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        //console.log('Received values of form: ', values);
-        let newElemet = {
-          name: values.name,
-          age: values.age,
-          address: values.address
-        };
+        console.log("Received values of form: ", values);
 
         //let clonetData = clone(this.state.dataSource)
 
         let clonetData = [...this.state.dataSource];
 
+        // Преобразовываем tap для чтения
+        // taps[{ name: 'name', value: 'value' }]
+        let taps = [];
+
+        for (var key in values) {
+          if (~key.indexOf("tap")) {
+            let str = values[key];
+            let name = key.split("--");
+            // console.log("99999999999999999", name);
+            let elem = {
+              name: name[1],
+              value: str
+            };
+            taps.push(elem);
+            //  console.log("key", key);
+            //  console.log("values", str);
+          }
+        }
+
+        let newElemet = {
+          name: values.name,
+          age: values.age,
+          address: values.address,
+          taps: taps
+        };
+
+        console.log("--- taps", taps);
         //console.log('!this.state.edit', !this.state.edit)
 
         if (!this.state.edit) {
-          //newElemet.key = clonetData.length
           newElemet.key = UUID.v4();
-
-          // Находим самый большой ключ и добовляем + 1 к нему
-
-          //let num = []
-
-          // clonetData.forEach(element => {
-          //     //console.log('element', element)
-          //     num.push(element.key)
-          // });
-
-          // let getMax = Math.max(...num)
-          // console.log('max', getMax)
-
-          // if(clonetData.length > 2){
-          //     newElemet.key = getMax + 2
-          // } else {
-          //     newElemet.key = clonetData.length
-          // }
-
-          //console.log('arr num', num)
-          //console.log('mux  arr', Math.max(...num))
-
           clonetData.push(newElemet);
 
           this.setState({
@@ -182,7 +182,7 @@ class FormOne extends Component {
   };
 
   addNew = (values, key) => {
-    console.log("add", values, key);
+    //console.log("add", values, key);
 
     let cloneList = clone(this.state.list);
 
@@ -202,13 +202,27 @@ class FormOne extends Component {
       }
       return item;
     });
+
     this.setState({
       list: cloneList
+    });
+
+    this.addNewTap(newElement);
+  };
+
+  addNewTap = element => {
+    console.log("------ element", element);
+
+    let getElement = [...this.state.tap];
+    getElement.push(element);
+
+    this.setState({
+      tap: getElement
     });
   };
 
   cheang = value => {
-    console.log("value", value);
+    //console.log("value", value);
     const key = value.key;
     const listClone = [...this.state.list];
     let newElement = {
@@ -233,10 +247,10 @@ class FormOne extends Component {
   };
 
   delet = index => {
-    console.log("delet", index);
+    //console.log("delet", index);
     const list = [...this.state.list];
     let del = list.filter(item => item.key !== index);
-    console.log("--- del", del);
+    //console.log("--- del", del);
     this.setState({ list: del });
   };
 
@@ -288,7 +302,25 @@ class FormOne extends Component {
       {
         title: "Tap",
         dataIndex: "tap",
-        key: "tap"
+        key: "tap",
+        render: (text, record, index) => {
+          console.log("tap", record);
+          return (
+            <div>
+              {record.taps
+                ? record.taps.map(item => {
+                    return (
+                      <span>
+                        {item.name}: {item.value}; &nbsp;
+                      </span>
+                    );
+                  })
+                : null}
+            </div>
+          );
+
+          // taps
+        }
       }
     ];
 
@@ -304,6 +336,17 @@ class FormOne extends Component {
           cheang={this.cheang}
           delet={this.delet}
           state={this.state.list}
+        />
+      );
+    });
+
+    let getTap = this.state.tap.map((item, i) => {
+      return (
+        <CreatTap
+          key={item.key}
+          getFieldDecorator={getFieldDecorator}
+          index={item.key}
+          data={this.state.tap}
         />
       );
     });
@@ -360,6 +403,7 @@ class FormOne extends Component {
 
                 <p>Проектируемые технико-экономические показатели</p>
 
+                {getTap}
                 {getElement}
 
                 <Button onClick={this.addTep} type="primary">

@@ -26,36 +26,6 @@ class Tap extends Component {
     };
   }
 
-  handleClick = e => {
-    console.log("click!", UUID.v4());
-    let cloneList = clone(this.state.list);
-    let newElement = {
-      name: "name"
-    };
-
-    newElement.key = UUID.v4();
-
-    cloneList.push(newElement);
-    this.setState({
-      list: cloneList
-    });
-  };
-
-  delet222 = index => {
-    console.log("delet", index);
-    const list = [...this.state.list];
-    this.setState({ list: list.filter(item => item.key !== index) });
-  };
-
-  handleSubmit22 = e => {
-    e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log("--- values", values);
-      }
-    });
-  };
-
   creat = e => {
     console.log("click!", this.props.list);
     e.preventDefault();
@@ -94,13 +64,10 @@ class Tap extends Component {
     const { form, list, element } = this.props;
     const { getFieldDecorator } = form;
 
-    console.log("TEP props", this.props);
+    // console.log("TEP props", this.props);
 
     return (
-      <Form
-        className={this.props.element.delet ? "hidden" : ""}
-        // onSubmit={this.handleSubmit}
-      >
+      <Form className={this.props.element.delet ? "hidden" : ""}>
         <p>{this.props.list}</p>
         <FormItem>
           {getFieldDecorator(`name`, {
