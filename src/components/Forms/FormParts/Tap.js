@@ -1,118 +1,130 @@
-import React, {Component} from 'react'
+import React, { Component, PureComponent } from "react";
 import {
-    Row,
-    Col,
-    Form,
-    Table,
-    Checkbox,
-    Input,
-    Icon,
-    Button,
-    Layout
-} from 'antd'
-import {default as UUID} from "node-uuid";
+  Row,
+  Col,
+  Form,
+  Table,
+  Checkbox,
+  Input,
+  Icon,
+  Button,
+  Layout
+} from "antd";
+import { default as UUID } from "node-uuid";
 
-import {clone} from 'ramda'
+import { clone } from "ramda";
 
 const FormItem = Form.Item;
 
-// Написать генератор форм в цикле с валидацией и сабмитом  
+// Написать генератор форм в цикле с валидацией и сабмитом
 
 class Tap extends Component {
-    
-    constructor(props){
-        super(props)
-        this.state = {
-            list: []
-        }
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      list: []
+    };
+  }
 
-    handleClick = (e) => {
-        console.log('click!', UUID.v4())
-        let cloneList = clone(this.state.list)
-        let newElement = {
-            name: 'name'
-        }
-        
-        newElement.key = UUID.v4()
+  handleClick = e => {
+    console.log("click!", UUID.v4());
+    let cloneList = clone(this.state.list);
+    let newElement = {
+      name: "name"
+    };
 
-        cloneList.push(newElement)
-        this.setState({
-            list: cloneList
-        })
-    }
+    newElement.key = UUID.v4();
 
-    delet222 = (index) => {
-        console.log('delet', index)
-        const list = [...this.state.list];
-        this.setState({ list: list.filter(item => item.key !== index) })
-    }
+    cloneList.push(newElement);
+    this.setState({
+      list: cloneList
+    });
+  };
 
-    handleSubmit22 = (e) => {
-        e.preventDefault();
-        this.props.form.validateFields((err, values) => {
-          if (!err) {
-              console.log('--- values', values)
-          }
-        })
-    }
+  delet222 = index => {
+    console.log("delet", index);
+    const list = [...this.state.list];
+    this.setState({ list: list.filter(item => item.key !== index) });
+  };
 
-    creat = (e) => {
-        console.log('click!')
-        e.preventDefault();
-        this.props.form.validateFields((err, values) => {
-          if (!err) {
-              console.log('--- values', values)
-              this.props.add(values, this.props.list)
-          }
-        })
-    }
+  handleSubmit22 = e => {
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log("--- values", values);
+      }
+    });
+  };
 
-    render() {
+  creat = e => {
+    console.log("click!", this.props.list);
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log("--- values", values);
+        this.props.add(values, this.props.list);
+      }
+    });
+  };
 
-        //console.log('this.state', this.state)
+  close = e => {
+    console.log("click! close", this.props);
+    let list = this.props.list;
+    //this.props.form.resetFields();
+    this.props.delet(list);
+  };
 
-        const { form, list, element } = this.props
-        const { getFieldDecorator } = form
+  handleName = e => {
+    const name = e.target.value;
+    //console.log("handleName", name, this.props);
+    let newElement = { ...this.props.element };
+    newElement.name = name;
+    //console.log("newElement", newElement);
+    this.props.cheang(newElement);
+  };
 
-        
-        console.log('TEP props', this.props)
-        return (
+  handleType = e => {
+    const type = e.target.value;
+    console.log("handleType", type, this.props);
+  };
 
-                 <Form 
-                 className={this.props.element.delet ? 'hidden': ''}
-                   // onSubmit={this.handleSubmit} 
-                >
-                    <FormItem>
-                    {getFieldDecorator( `name`, {
-                            rules: [{ required: true, message: 'Please input your Name!' }],
-                        })(
-                            <Input placeholder="Название" />
-                        )}
-                    </FormItem>
+  render() {
+    //console.log('this.state', this.state)
 
-                    <FormItem>
-                    {getFieldDecorator( `type`, {
-                            rules: [{ required: true, message: 'Please input your Type!' }],
-                        })(
-                            <Input placeholder="Тип" />
-                        )}
-                    </FormItem>
+    const { form, list, element } = this.props;
+    const { getFieldDecorator } = form;
 
-                    <FormItem>
-                        <Button type="primary" onClick={this.creat}
-                        >
-                            Сохранить Tap
-                        </ Button> 
-                    </FormItem>
-                    <FormItem>
-                        <Button onClick={() => this.props.delet(list)} >
-                            Отмена
-                        </ Button> 
-                    </FormItem>
-            </Form>
-        )
-    }
-} 
+    console.log("TEP props", this.props);
 
-export default Form.create()(Tap)
+    return (
+      <Form
+        className={this.props.element.delet ? "hidden" : ""}
+        // onSubmit={this.handleSubmit}
+      >
+        <p>{this.props.list}</p>
+        <FormItem>
+          {getFieldDecorator(`name`, {
+            rules: [{ required: true, message: "Please input your Name!" }]
+          })(<Input onChange={this.handleName} placeholder="Название" />)}
+        </FormItem>
+
+        <FormItem>
+          {getFieldDecorator(`type`, {
+            rules: [{ required: true, message: "Please input your Type!" }]
+          })(<Input onChange={this.handleType} placeholder="Тип" />)}
+        </FormItem>
+
+        <FormItem>
+          <Button type="primary" onClick={this.creat}>
+            Сохранить Tap
+          </Button>
+        </FormItem>
+        <FormItem>
+          <Button onClick={this.close}>Отмена</Button>
+        </FormItem>
+      </Form>
+    );
+  }
+}
+
+export default Form.create()(Tap);
